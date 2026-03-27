@@ -1,31 +1,125 @@
+/* --- Your Original Styles --- */
 body {
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background-color: #f0f0f0;
   text-align: center;
   padding: 20px;
 }
 
 input {
-  padding: 5px;
-  margin: 5px;
+  padding: 8px;
+  margin: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 button {
   background-color: blue;
   color: white;
   border: none;
-  padding: 8px;
+  padding: 10px 20px;
   cursor: pointer;
+  border-radius: 4px;
 }
 
+button:hover {
+  opacity: 0.8;
+}
+
+/* --- New Styles for the List & Delete Button --- */
 ul {
   list-style-type: none;
   padding: 0;
+  max-width: 400px; /* Keeps the list from getting too wide */
+  margin: 20px auto;
 }
 
 li {
   background-color: white;
-  margin: 5px;
-  padding: 8px;
+  margin: 10px 0;
+  padding: 15px;
   border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative; /* This is like an anchor for the 'X' button */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Red border for expenses, Green for income */
+li.minus {
+  border-right: 5px solid #e74c3c;
+}
+
+li.plus {
+  border-right: 5px solid #2ecc71;
+}
+
+/* The Secret 'X' Button */
+.delete-btn {
+  cursor: pointer;
+  background-color: #e74c3c;
+  border: 0;
+  color: #fff;
+  font-size: 16px;
+  line-height: 16px;
+  padding: 2px 8px;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translate(-100%, -50%); /* Moves it just outside the box */
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.3s ease;
+  border-radius: 3px 0 0 3px;
+}
+
+/* Show the 'X' when you move your mouse over the list item */
+li:hover .delete-btn {
+  opacity: 1;
+}
+
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Color coding for categories */
+/* Base style for all badges */
+.item-category {
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-weight: bold;
+    color: #333;
+    background-color: #ecf0f1; /* Default Gray */
+}
+
+/* Specific Colors - MUST MATCH THE CASE IN YOUR SCREENSHOT */
+.item-category[data-category="Food"] {
+    background-color: #ffeaa7; /* Yellow */
+    color: #d35400;
+}
+
+.item-category[data-category="Transport"] {
+    background-color: #81ecec; /* Sky Blue */
+    color: #0984e3;
+}
+
+.item-category[data-category="Salary"] {
+    background-color: #55efc4; /* Green */
+    color: #009432;
+}
+
+.item-category[data-category="Rent"] {
+    background-color: #fab1a0; /* Soft Red */
+    color: #c0392b;
+}
+
+.item-category[data-category="Other"] {
+    background-color: #dfe6e9; /* Gray */
+    color: #636e72;
 }
