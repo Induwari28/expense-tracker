@@ -23,12 +23,18 @@ function add() {
   document.getElementById("amount").value = "";
 }
 
-function editItem(id) {
-  const itemToEdit = transactions.find(t => t.id === id);
-  document.getElementById("desc").value = itemToEdit.text;
-  document.getElementById("amount").value = itemToEdit.value;
-  deleteItem(id);
-  document.getElementById("desc").focus();
+function editItem(id, text, amount, category) {
+    descInp.value = text;
+    amountInp.value = amount;
+    categoryInp.value = category || 'Other';
+    
+    // Change the button color and text to show we are editing
+    const saveBtn = document.querySelector('.btn');
+    saveBtn.innerText = "Update Transaction";
+    saveBtn.style.backgroundColor = "orange";
+
+    deleteItem(id, false); 
+    descInp.focus();
 }
 
 function deleteItem(id) {
