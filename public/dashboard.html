@@ -28,7 +28,6 @@
             margin-bottom: 20px;
         }
 
-        /* Savings Goal Button Style */
         .goal-btn {
             padding: 2px 8px;
             font-size: 12px;
@@ -38,11 +37,34 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
+        /* NEW: Currency Selector Styling */
+        .currency-container {
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        #currency-select {
+            width: auto;
+            padding: 5px;
+            margin: 0;
+            font-size: 12px;
+            border: 1px solid #ccc;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Expense Tracker</h1>
+
+        <div class="currency-container">
+            <label style="font-size: 12px; font-weight: bold;">Currency: </label>
+            <select id="currency-select" onchange="getTransactions()">
+                <option value="$">$ (USD)</option>
+                <option value="£">£ (GBP)</option>
+                <option value="€">€ (EUR)</option>
+                <option value="₹">₹ (INR)</option>
+            </select>
+        </div>
 
         <div class="balance-container">
             <h3>Your Balance</h3>
@@ -51,7 +73,7 @@
 
         <div class="goal-container" style="background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin: 0;">Savings Goal: $<span id="goal-value">500</span></h4>
+                <h4 style="margin: 0;">Savings Goal: <span id="goal-symbol">$</span><span id="goal-value">500</span></h4>
                 <button onclick="setGoal()" class="goal-btn">Set Goal</button>
             </div>
             
@@ -132,9 +154,15 @@
         const descInp = document.getElementById('desc');
         const amountInp = document.getElementById('amount');
         const categoryInp = document.getElementById('category');
+        const currencySelect = document.getElementById('currency-select');
+        const goalSymbol = document.getElementById('goal-symbol');
 
         async function getTransactions() {
             try {
+                // 1. GET THE SELECTED CURRENCY SYMBOL
+                const currency = currencySelect.value;
+                goalSymbol.innerText = currency; // Update the symbol in the Goal header
+
                 const res = await fetch('/api/transactions');
                 let transactions = await res.json();
                 
@@ -155,6 +183,7 @@
                     item.classList.add(t.amount < 0 ? 'minus' : 'plus');
                     const date = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
+                    // 2. USE DYNAMIC CURRENCY IN THE HISTORY LIST
                     item.innerHTML = `
                         <div>
                             <span class="item-name">${t.text}</span>
@@ -162,7 +191,7 @@
                             <small class="item-date">${date}</small>
                         </div>
                         <div>
-                            <span>${t.amount < 0 ? '-' : '+'}$${Math.abs(t.amount)}</span>
+                            <span>${t.amount < 0 ? '-' : '+'}${currency}${Math.abs(t.amount).toFixed(2)}</span>
                             <button class="edit-btn" onclick="editItem('${t._id}', '${t.text}', ${t.amount}, '${t.category}')">Edit</button>
                             <button class="delete-btn" onclick="deleteItem('${t._id}')">X</button>
                         </div>
@@ -174,26 +203,26 @@
                 });
 
                 const totalBalance = income + expense;
-                balanceEl.innerText = `$${totalBalance.toFixed(2)}`;
-                incomeEl.innerText = `$${income.toFixed(2)}`;
-                expenseEl.innerText = `$${Math.abs(expense).toFixed(2)}`;
+                
+                // 3. USE DYNAMIC CURRENCY IN SUMMARY BOXES
+                balanceEl.innerText = `${currency}${totalBalance.toFixed(2)}`;
+                incomeEl.innerText = `${currency}${income.toFixed(2)}`;
+                expenseEl.innerText = `${currency}${Math.abs(expense).toFixed(2)}`;
 
-                // 2. TRIGGER PROGRESS BAR UPDATE
-                updateProgressBar(totalBalance);
+                updateProgressBar(totalBalance, currency);
                 showChart(income, expense);
             } catch (err) { console.error(err); }
         }
 
-        // --- 3. NEW GOAL FUNCTIONS ---
         function setGoal() {
             const newGoal = prompt("Enter your savings goal amount:", "500");
             if (newGoal && !isNaN(newGoal)) {
                 document.getElementById('goal-value').innerText = newGoal;
-                getTransactions(); // Refresh UI to update bar
+                getTransactions();
             }
         }
 
-        function updateProgressBar(currentBalance) {
+        function updateProgressBar(currentBalance, currency) {
             const goalValue = parseFloat(document.getElementById('goal-value').innerText);
             const progressBar = document.getElementById('progress-bar');
             const goalStatus = document.getElementById('goal-status');
@@ -203,9 +232,10 @@
             if (percentage > 100) percentage = 100;
 
             progressBar.style.width = percentage + "%";
-            goalStatus.innerText = `${Math.round(percentage)}% of your goal reached ($${currentBalance.toFixed(2)} / $${goalValue})`;
             
-            // UI Polish: Change color if progress is high
+            // 4. USE DYNAMIC CURRENCY IN PROGRESS TEXT
+            goalStatus.innerText = `${Math.round(percentage)}% reached (${currency}${currentBalance.toFixed(2)} / ${currency}${goalValue})`;
+            
             progressBar.style.backgroundColor = percentage >= 100 ? "#27ae60" : "#2ecc71";
         }
 
@@ -248,7 +278,7 @@
                 data: {
                     labels: ['Income', 'Expense'],
                     datasets: [{
-                        label: 'Amount ($)',
+                        label: 'Amount',
                         data: [inc, Math.abs(exp)],
                         backgroundColor: ['#2ecc71', '#e74c3c']
                     }]
