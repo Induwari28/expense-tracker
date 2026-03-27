@@ -1,18 +1,34 @@
 const express = require('express');
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 const path = require('path');
 
-const app = express();
-const PORT = 5000;
+// 1. Open the Secret Box (.env file)
+dotenv.config(); 
 
+const app = express();
+
+// 2. MIDDLEWARE: This allows the server to "read" data from your forms
+app.use(express.json()); 
+
+// 3. The Connection Check
+console.log("--- Connection Check ---");
+if (process.env.MONGO_URI) {
+    console.log("Is MONGO_URI loading?: YES ✅");
+    
+    mongoose.connect(process.env.MONGO_URI)
+        .then(() => console.log('✅ MongoDB is Connected!'))
+        .catch(err => console.log('❌ Error:', err.message));
+} else {
+    console.log("Is MONGO_URI loading?: NO ❌");
+}
+
+// 4. LINK THE ROUTES (The Brains of your app)
+app.use('/api/users', require('./routes/users')); // For login/signup
+app.use('/api/transactions', require('./routes/transactions')); // FOR THE MONEY! 💰
+
+// 5. Serve the frontend files (HTML/CSS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ADD THIS LINE: It tells the browser to ignore the missing icon
-app.get('/favicon.ico', (req, res) => res.status(204).end());
-
-app.get('/api/test', (req, res) => {
-    res.json({ message: "Success! The Backend is alive." });
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running at: http://localhost:${PORT}`);
-});
+// 6. Start the Server
+app.listen(5000, () => console.log('🚀 Server is running on http://localhost:5000'));
