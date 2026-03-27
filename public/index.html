@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Expense Tracker</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Expense Tracker</h2>
+
+    <div class="balance-area">
+      <h3>Your Balance: <span id="balance">0</span></h3>
+      <h4>Income: <span id="income">0</span></h4>
+      <h4>Expense: <span id="expense">0</span></h4>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="myChart"></canvas>
+    </div>
+
+    <hr>
+
+    <h3>Add New Transaction</h3>
+    <label>Description:</label>
+    <input type="text" id="desc" placeholder="Example: Lunch">
+    
+    <label>Amount:</label>
+    <input type="number" id="amount" placeholder="Example: -300">
+    
+    <button onclick="add()" id="add-btn">Add Transaction</button>
+
+    <h3>History</h3>
+    <ul id="list"></ul>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
