@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .item-category { background: #eee; border-radius: 10px; padding: 2px 8px; font-size: 10px; text-transform: uppercase; margin-left: 10px; font-weight: bold; }
+        .item-date { display: block; color: #888; font-size: 11px; margin-top: 5px; }
+        select { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ddd; }
+        #search { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        .delete-btn { cursor: pointer; background-color: #e74c3c; border: 0; color: #fff; padding: 2px 8px; border-radius: 3px; margin-left: 5px; }
+        .edit-btn { cursor: pointer; background-color: orange; border: 0; color: #fff; padding: 2px 8px; border-radius: 3px; }
+        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 30px; background: #fff; padding: 10px; border-radius: 8px; }
+        .balance-summary { display: flex; justify-content: space-around; margin-bottom: 20px; padding: 10px; background: #f9f9f9; border-radius: 8px; }
+        .summary-box h4 { margin: 0; font-size: 12px; color: #777; }
+        .summary-box p { margin: 5px 0 0; font-size: 18px; font-weight: bold; }
+        .plus-text { color: #2ecc71; }
+        .minus-text { color: #e74c3c; }
+        
+        .filter-container {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        /* Savings Goal Button Style */
+        .goal-btn {
+            padding: 2px 8px;
+            font-size: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+
+        <div class="balance-container">
+            <h3>Your Balance</h3>
+            <h1 id="balance">$0.00</h1>
+        </div>
+
+        <div class="goal-container" style="background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h4 style="margin: 0;">Savings Goal: $<span id="goal-value">500</span></h4>
+                <button onclick="setGoal()" class="goal-btn">Set Goal</button>
+            </div>
+            
+            <div class="progress-bg" style="background: #eee; height: 20px; border-radius: 10px; margin-top: 10px; overflow: hidden;">
+                <div id="progress-bar" style="background: #2ecc71; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+            </div>
+            <p id="goal-status" style="font-size: 12px; margin-top: 5px; color: #777;">0% of your goal reached</p>
+        </div>
+        
+        <div class="balance-summary">
+            <div class="summary-box">
+                <h4>INCOME</h4>
+                <p id="income" class="plus-text">$0.00</p>
+            </div>
+            <div class="summary-box">
+                <h4>EXPENSE</h4>
+                <p id="expense" class="minus-text">$0.00</p>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+        </div>
+
+        <div class="filter-container" style="display: flex; gap: 10px; align-items: center;">
+            <label style="font-weight: bold;">View Month:</label>
+            <select id="month-filter" onchange="getTransactions()" style="width: auto; margin-bottom: 0; padding: 5px;">
+                <option value="all">Full History</option>
+                <option value="0">January</option>
+                <option value="1">February</option>
+                <option value="2">March</option>
+                <option value="3">April</option>
+                <option value="4">May</option>
+                <option value="5">June</option>
+                <option value="6">July</option>
+                <option value="7">August</option>
+                <option value="8">September</option>
+                <option value="9">October</option>
+                <option value="10">November</option>
+                <option value="11">December</option>
+            </select>
+        </div>
+
+        <h3>Search</h3>
+        <input type="text" id="search" placeholder="Search by name..." onkeyup="filterTransactions()">
+
+        <h3>History</h3>
+        <ul id="list" class="list"></ul>
+
+        <h3>Add New Transaction</h3>
+        <form id="transaction-form">
+            <input type="text" id="desc" placeholder="Description" required />
+            <input type="number" id="amount" placeholder="Amount (Income +, Expense -)" required />
+            
+            <label for="category">Category</label>
+            <select id="category">
+                <option value="Food">Food</option>
+                <option value="Rent">Rent</option>
+                <option value="Salary">Salary</option>
+                <option value="Transport">Transport</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <button class="btn">Save Transaction</button>
+        </form>
+
+        <button onclick="logout()" style="margin-top: 30px; background-color: #bbbbbb; border: none; padding: 5px 10px; cursor: pointer;">Logout</button>
+    </div>
+
+    <script>
+        let myChart;
+        const balanceEl = document.getElementById('balance');
+        const incomeEl = document.getElementById('income');
+        const expenseEl = document.getElementById('expense');
+        const list = document.getElementById('list');
+        const form = document.getElementById('transaction-form');
+        const descInp = document.getElementById('desc');
+        const amountInp = document.getElementById('amount');
+        const categoryInp = document.getElementById('category');
+
+        async function getTransactions() {
+            try {
+                const res = await fetch('/api/transactions');
+                let transactions = await res.json();
+                
+                const selectedMonth = document.getElementById('month-filter').value;
+                if (selectedMonth !== 'all') {
+                    transactions = transactions.filter(t => {
+                        const transactionDate = new Date(t.createdAt);
+                        return transactionDate.getMonth() == selectedMonth;
+                    });
+                }
+                
+                list.innerHTML = '';
+                let income = 0;
+                let expense = 0;
+
+                transactions.forEach(t => {
+                    const item = document.createElement('li');
+                    item.classList.add(t.amount < 0 ? 'minus' : 'plus');
+                    const date = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                    item.innerHTML = `
+                        <div>
+                            <span class="item-name">${t.text}</span>
+                            <span class="item-category" data-category="${t.category}">${t.category || 'Other'}</span>
+                            <small class="item-date">${date}</small>
+                        </div>
+                        <div>
+                            <span>${t.amount < 0 ? '-' : '+'}$${Math.abs(t.amount)}</span>
+                            <button class="edit-btn" onclick="editItem('${t._id}', '${t.text}', ${t.amount}, '${t.category}')">Edit</button>
+                            <button class="delete-btn" onclick="deleteItem('${t._id}')">X</button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+
+                    if (t.amount > 0) income += t.amount;
+                    else expense += t.amount;
+                });
+
+                const totalBalance = income + expense;
+                balanceEl.innerText = `$${totalBalance.toFixed(2)}`;
+                incomeEl.innerText = `$${income.toFixed(2)}`;
+                expenseEl.innerText = `$${Math.abs(expense).toFixed(2)}`;
+
+                // 2. TRIGGER PROGRESS BAR UPDATE
+                updateProgressBar(totalBalance);
+                showChart(income, expense);
+            } catch (err) { console.error(err); }
+        }
+
+        // --- 3. NEW GOAL FUNCTIONS ---
+        function setGoal() {
+            const newGoal = prompt("Enter your savings goal amount:", "500");
+            if (newGoal && !isNaN(newGoal)) {
+                document.getElementById('goal-value').innerText = newGoal;
+                getTransactions(); // Refresh UI to update bar
+            }
+        }
+
+        function updateProgressBar(currentBalance) {
+            const goalValue = parseFloat(document.getElementById('goal-value').innerText);
+            const progressBar = document.getElementById('progress-bar');
+            const goalStatus = document.getElementById('goal-status');
+
+            let percentage = (currentBalance / goalValue) * 100;
+            if (percentage < 0) percentage = 0;
+            if (percentage > 100) percentage = 100;
+
+            progressBar.style.width = percentage + "%";
+            goalStatus.innerText = `${Math.round(percentage)}% of your goal reached ($${currentBalance.toFixed(2)} / $${goalValue})`;
+            
+            // UI Polish: Change color if progress is high
+            progressBar.style.backgroundColor = percentage >= 100 ? "#27ae60" : "#2ecc71";
+        }
+
+        function editItem(id, text, amount, category) {
+            descInp.value = text;
+            amountInp.value = amount;
+            categoryInp.value = category || 'Other';
+            deleteItem(id, false); 
+            descInp.focus();
+        }
+
+        async function deleteItem(id, confirmMsg = true) {
+            if (confirmMsg && !confirm('Delete this item?')) return;
+            await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
+            getTransactions();
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await fetch('/api/transactions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    text: descInp.value, 
+                    amount: Number(amountInp.value),
+                    category: categoryInp.value 
+                })
+            });
+            descInp.value = ''; 
+            amountInp.value = '';
+            getTransactions();
+        });
+
+        function showChart(inc, exp) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+            if (myChart) { myChart.destroy(); }
+
+            myChart = new Chart(ctx, {
+                type: 'bar', 
+                data: {
+                    labels: ['Income', 'Expense'],
+                    datasets: [{
+                        label: 'Amount ($)',
+                        data: [inc, Math.abs(exp)],
+                        backgroundColor: ['#2ecc71', '#e74c3c']
+                    }]
+                },
+                options: { 
+                    responsive: true,
+                    maintainAspectRatio: false 
+                }
+            });
+        }
+
+        function filterTransactions() {
+            const filter = document.getElementById('search').value.toLowerCase();
+            Array.from(list.getElementsByTagName('li')).forEach(item => {
+                const name = item.querySelector('.item-name').textContent.toLowerCase();
+                item.style.display = name.includes(filter) ? 'flex' : 'none';
+            });
+        }
+
+        function logout() { window.location.href = 'login.html'; }
+        getTransactions();
+    </script>
+</body>
+</html>
