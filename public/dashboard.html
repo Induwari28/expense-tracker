@@ -38,7 +38,6 @@
             cursor: pointer;
         }
 
-        /* NEW: Currency Selector Styling */
         .currency-container {
             text-align: right;
             margin-bottom: 10px;
@@ -50,6 +49,19 @@
             font-size: 12px;
             border: 1px solid #ccc;
         }
+
+        /* NEW: Reset Button Styling */
+        .reset-btn {
+            background-color: #c0392b; 
+            color: white; 
+            border: none;
+            padding: 8px 12px; 
+            font-size: 11px; 
+            border-radius: 5px; 
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .reset-btn:hover { background-color: #a93226; }
     </style>
 </head>
 <body>
@@ -115,6 +127,10 @@
                 <option value="10">November</option>
                 <option value="11">December</option>
             </select>
+
+            <button onclick="resetMonth()" class="reset-btn">
+                🗑️ Reset Month
+            </button>
         </div>
 
         <h3>Search</h3>
@@ -159,9 +175,8 @@
 
         async function getTransactions() {
             try {
-                // 1. GET THE SELECTED CURRENCY SYMBOL
                 const currency = currencySelect.value;
-                goalSymbol.innerText = currency; // Update the symbol in the Goal header
+                goalSymbol.innerText = currency;
 
                 const res = await fetch('/api/transactions');
                 let transactions = await res.json();
@@ -183,7 +198,6 @@
                     item.classList.add(t.amount < 0 ? 'minus' : 'plus');
                     const date = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
-                    // 2. USE DYNAMIC CURRENCY IN THE HISTORY LIST
                     item.innerHTML = `
                         <div>
                             <span class="item-name">${t.text}</span>
@@ -203,8 +217,6 @@
                 });
 
                 const totalBalance = income + expense;
-                
-                // 3. USE DYNAMIC CURRENCY IN SUMMARY BOXES
                 balanceEl.innerText = `${currency}${totalBalance.toFixed(2)}`;
                 incomeEl.innerText = `${currency}${income.toFixed(2)}`;
                 expenseEl.innerText = `${currency}${Math.abs(expense).toFixed(2)}`;
@@ -212,6 +224,35 @@
                 updateProgressBar(totalBalance, currency);
                 showChart(income, expense);
             } catch (err) { console.error(err); }
+        }
+
+        // --- NEW RESET MONTH FUNCTION ---
+        async function resetMonth() {
+            const selectedMonth = document.getElementById('month-filter').value;
+
+            if (selectedMonth === 'all') {
+                alert("Please select a specific month to reset.");
+                return;
+            }
+
+            const confirmFirst = confirm("Are you sure you want to delete ALL transactions for this month?");
+            if (confirmFirst) {
+                const confirmSecond = confirm("This CANNOT be undone. Proceed?");
+                if (confirmSecond) {
+                    try {
+                        const res = await fetch(`/api/transactions/reset/${selectedMonth}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (res.ok) {
+                            alert("Month has been reset.");
+                            getTransactions(); 
+                        }
+                    } catch (err) {
+                        console.error("Error resetting month:", err);
+                    }
+                }
+            }
         }
 
         function setGoal() {
@@ -232,8 +273,6 @@
             if (percentage > 100) percentage = 100;
 
             progressBar.style.width = percentage + "%";
-            
-            // 4. USE DYNAMIC CURRENCY IN PROGRESS TEXT
             goalStatus.innerText = `${Math.round(percentage)}% reached (${currency}${currentBalance.toFixed(2)} / ${currency}${goalValue})`;
             
             progressBar.style.backgroundColor = percentage >= 100 ? "#27ae60" : "#2ecc71";
