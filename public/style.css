@@ -89,37 +89,68 @@ li:hover .delete-btn {
 
 /* Color coding for categories */
 /* Base style for all badges */
+/* Base style for the badge */
 .item-category {
-    padding: 3px 10px;
-    border-radius: 12px;
     font-size: 10px;
     font-weight: bold;
-    color: #333;
-    background-color: #ecf0f1; /* Default Gray */
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: white !important; /* Keep text white for contrast */
+    text-transform: uppercase;
 }
 
-/* Specific Colors - MUST MATCH THE CASE IN YOUR SCREENSHOT */
-.item-category[data-category="Food"] {
-    background-color: #ffeaa7; /* Yellow */
-    color: #d35400;
+/* Color Mapping: CSS looks at the 'data-category' label to decide the color */
+.item-category[data-category="Food"] { background-color: #27ae60; }        /* Green */
+.item-category[data-category="Rent"] { background-color: #e67e22; }        /* Orange */
+.item-category[data-category="Salary"] { background-color: #2ecc71; }      /* Bright Green */
+.item-category[data-category="Transport"] { background-color: #3498db; }   /* Blue */
+.item-category[data-category="Entertainment"] { background-color: #9b59b6; } /* Purple */
+.item-category[data-category="Other"] { background-color: #7f8c8d; }       /* Gray */
+/* --- 1. DEFAULT MOBILE VIEW (Vertical) --- */
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    transition: max-width 0.3s ease; /* Smooth transition when resizing window */
 }
 
-.item-category[data-category="Transport"] {
-    background-color: #81ecec; /* Sky Blue */
-    color: #0984e3;
+.dashboard-grid {
+    display: flex;
+    flex-direction: column; /* Vertical stack */
+    gap: 20px;
 }
 
-.item-category[data-category="Salary"] {
-    background-color: #55efc4; /* Green */
-    color: #009432;
+.left-panel, .right-panel {
+    width: 100%;
 }
 
-.item-category[data-category="Rent"] {
-    background-color: #fab1a0; /* Soft Red */
-    color: #c0392b;
-}
+/* --- 2. LAPTOP/DESKTOP VIEW (Horizontal) --- */
+/* This triggers when the screen is wider than 1024px */
+@media (min-width: 1024px) {
+    .container {
+        max-width: 1100px; /* Expands to show side-by-side panels */
+    }
 
-.item-category[data-category="Other"] {
-    background-color: #dfe6e9; /* Gray */
-    color: #636e72;
+    .dashboard-grid {
+        flex-direction: row; /* Switches to horizontal row */
+        align-items: flex-start;
+        gap: 40px;
+    }
+
+    .left-panel {
+        flex: 1.5; /* Gives more room to the chart and balance */
+    }
+
+    .right-panel {
+        flex: 1; /* Narrower column for history and form */
+        background: var(--summary-bg); /* Uses your theme color */
+        padding: 25px;
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        position: sticky; /* Keeps the form visible as you scroll */
+        top: 20px;
+    }
+    
+    .chart-container {
+        height: 380px; /* Larger chart for desktop */
+    }
 }

@@ -7,122 +7,151 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 1. CSS VARIABLES & THEMES */
+        /* 1. THEME VARIABLES */
         :root {
             --bg-color: #f4f7f6;
             --container-bg: #ffffff;
-            --text-color: #333;
-            --secondary-text: #777;
-            --border-color: #ddd;
+            --text-color: #333333; 
+            --secondary-text: #777777;
+            --border-color: #dddddd;
             --summary-bg: #f9f9f9;
-            --item-bg: #eee;
+            --item-bg: #eeeeee;
         }
 
         [data-theme="dark"] {
             --bg-color: #1a1a2e;
             --container-bg: #16213e;
-            --text-color: #ffffff;
+            --text-color: #ffffff; 
             --secondary-text: #bdc3c7;
             --border-color: #0f3460;
             --summary-bg: #1f2a44;
             --item-bg: #2d3436;
         }
 
-        /* 2. BASE STYLES */
         body { 
             background-color: var(--bg-color); 
             color: var(--text-color); 
             transition: 0.3s; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             padding: 20px;
         }
 
         .container {
-            max-width: 600px; /* Default for mobile */
+            max-width: 600px;
             margin: 0 auto;
             background-color: var(--container-bg);
             padding: 25px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: max-width 0.4s ease;
         }
 
-        h1 { margin: 0; font-size: 24px; }
-        h3 { margin-top: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
-
-        /* 3. RESPONSIVE GRID SYSTEM */
-        .dashboard-grid {
+        /* HEADER SECTION: Title Left, Buttons Right */
+        .header-section {
             display: flex;
-            flex-direction: column;
-            gap: 25px;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+        }
+        .header-section h1 {
+            margin: 0;
+            font-size: 26px;
+            letter-spacing: -1px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
         }
 
-        /* 4. LAPTOP VIEW (HORIZONTAL) */
+        /* BUTTON STYLES */
+        #theme-btn, .logout-btn {
+            background: var(--item-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .logout-btn {
+            background-color: #e74c3c;
+            color: white !important;
+            border: none;
+        }
+        .logout-btn:hover { background-color: #c0392b; }
+
+        /* GOAL SETUP */
+        .goal-container {
+            background-color: var(--summary-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        .progress-bg {
+            background: #e0e0e0;
+            height: 14px;
+            border-radius: 7px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+        #progress-bar {
+            background: #2ecc71;
+            height: 100%;
+            width: 0%;
+            transition: width 0.6s ease-in-out;
+        }
+
+        /* GRID LAYOUT */
+        .dashboard-grid { display: flex; flex-direction: column; gap: 25px; }
         @media (min-width: 1024px) {
-            .container {
-                max-width: 1100px; 
-            }
-            .dashboard-grid {
-                flex-direction: row;
-                align-items: flex-start;
-            }
+            .container { max-width: 1150px; }
+            .dashboard-grid { flex-direction: row; align-items: flex-start; }
             .left-panel { flex: 1.4; }
             .right-panel { 
                 flex: 1; 
                 position: sticky; 
-                top: 20px;
-                background: var(--summary-bg);
-                padding: 20px;
+                top: 20px; 
+                background: var(--summary-bg); 
+                padding: 20px; 
                 border-radius: 10px;
+                border: 1px solid var(--border-color);
             }
         }
 
-        /* 5. UI COMPONENTS */
-        .balance-summary { display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; border-radius: 8px; background: var(--summary-bg); }
-        .summary-box p { font-size: 20px; font-weight: bold; margin: 5px 0; }
-        .plus-text { color: #2ecc71; }
-        .minus-text { color: #e74c3c; }
+        /* CATEGORIES & LISTS */
+        .item-category { font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px; color: white !important; text-transform: uppercase; margin-left: 10px;}
+        .item-category[data-category="Food"] { background-color: #27ae60; }
+        .item-category[data-category="Rent"] { background-color: #e67e22; }
+        .item-category[data-category="Salary"] { background-color: #2ecc71; }
+        .item-category[data-category="Transport"] { background-color: #3498db; }
+        .item-category[data-category="Entertainment"] { background-color: #9b59b6; }
+        .item-category[data-category="Other"] { background-color: #7f8c8d; }
 
-        .chart-container { height: 300px; margin-bottom: 20px; }
-
-        .goal-container { border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
-        .progress-bg { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; margin: 10px 0; }
-        #progress-bar { background: #2ecc71; height: 100%; width: 0%; transition: width 0.5s; }
-
-        .list { list-style: none; padding: 0; }
-        .list li { 
-            background: var(--container-bg); 
-            border: 1px solid var(--border-color); 
-            display: flex; justify-content: space-between; 
-            padding: 12px; margin-bottom: 10px; border-radius: 6px; 
-        }
-        .item-category { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: var(--item-bg); }
-
-        input, select { width: 100%; padding: 10px; margin: 5px 0 15px; border-radius: 5px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); box-sizing: border-box; }
-
-        /* Buttons */
-        .btn-row { display: flex; gap: 8px; margin-top: 10px; }
-        button { cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.2s; border: none; }
-        .goal-btn { background: #3498db; color: white; padding: 5px 10px; }
-        .export-btn { background: #27ae60; color: white; padding: 8px 12px; flex: 1; }
-        .reset-btn { background: #c0392b; color: white; padding: 8px 12px; flex: 1; }
-        #theme-btn { background: var(--item-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 10px; }
-        .edit-btn { background: orange; color: white; padding: 2px 6px; margin-right: 5px; }
-        .delete-btn { background: #e74c3c; color: white; padding: 2px 6px; }
-        .save-btn { background: #2980b9; color: white; padding: 12px; width: 100%; font-size: 16px; }
+        .list li { background: var(--container-bg); border: 1px solid var(--border-color); display: flex; justify-content: space-between; padding: 15px; margin-bottom: 12px; border-radius: 8px; align-items: center; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0 18px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); box-sizing: border-box; }
+        .save-btn { background: #2980b9; color: white; padding: 14px; width: 100%; font-weight: bold; border: none; cursor: pointer; border-radius: 6px; font-size: 16px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <header class="header-section">
             <h1>Expense Tracker</h1>
-            <button onclick="toggleDarkMode()" id="theme-btn">🌙 Dark Mode</button>
-        </div>
+            <div class="header-actions">
+                <button onclick="toggleDarkMode()" id="theme-btn">🌙 Dark Mode</button>
+                <button onclick="logout()" class="logout-btn">🚪 Logout</button>
+            </div>
+        </header>
 
-        <div style="text-align: right; margin-bottom: 15px;">
+        <div style="text-align: right; margin-bottom: 20px;">
             <label style="font-size: 12px; font-weight: bold;">Currency: </label>
-            <select id="currency-select" onchange="getTransactions()" style="width: auto; margin: 0;">
+            <select id="currency-select" onchange="getTransactions()" style="width: auto; margin: 0; padding: 4px;">
                 <option value="$">$ (USD)</option>
                 <option value="£">£ (GBP)</option>
                 <option value="€">€ (EUR)</option>
@@ -131,32 +160,31 @@
         </div>
 
         <div class="dashboard-grid">
-            
             <div class="left-panel">
-                <div class="balance-container" style="text-align: center; margin-bottom: 25px;">
-                    <h3 style="border:none;">Your Balance</h3>
-                    <h1 id="balance" style="font-size: 42px;">$0.00</h1>
-                </div>
-
                 <div class="goal-container">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <h4 style="margin: 0;">Savings Goal: <span id="goal-symbol">$</span><span id="goal-value">500</span></h4>
-                        <button onclick="setGoal()" class="goal-btn">Set Goal</button>
+                        <button onclick="setGoal()" style="background:#3498db; color:white; border:none; padding:5px 12px; border-radius:4px; cursor:pointer; font-size:11px;">Set Goal</button>
                     </div>
                     <div class="progress-bg">
                         <div id="progress-bar"></div>
                     </div>
-                    <p id="goal-status" style="font-size: 12px; color: var(--secondary-text); margin: 0;">0% reached</p>
+                    <p id="goal-status" style="font-size: 11px; margin: 0; color: var(--secondary-text);">0% reached</p>
                 </div>
 
-                <div class="balance-summary">
-                    <div class="summary-box" style="text-align: center;">
-                        <h4 style="margin:0; font-size:12px;">INCOME</h4>
-                        <p id="income" class="plus-text">$0.00</p>
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <h3 style="margin:0; font-size:14px; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 1px;">Total Balance</h3>
+                    <h1 id="balance" style="font-size: 52px; margin:10px 0;">$0.00</h1>
+                </div>
+
+                <div style="display: flex; justify-content: space-around; background: var(--summary-bg); padding: 20px; border-radius: 12px; margin-bottom: 30px; border: 1px solid var(--border-color);">
+                    <div style="text-align: center;">
+                        <h4 style="margin:0; font-size:11px; color:var(--secondary-text);">INCOME</h4>
+                        <p id="income" style="color:#2ecc71; font-weight:bold; font-size:22px; margin:5px 0;">$0.00</p>
                     </div>
-                    <div class="summary-box" style="text-align: center;">
-                        <h4 style="margin:0; font-size:12px;">EXPENSE</h4>
-                        <p id="expense" class="minus-text">$0.00</p>
+                    <div style="text-align: center;">
+                        <h4 style="margin:0; font-size:11px; color:var(--secondary-text);">EXPENSE</h4>
+                        <p id="expense" style="color:#e74c3c; font-weight:bold; font-size:22px; margin:5px 0;">$0.00</p>
                     </div>
                 </div>
 
@@ -164,55 +192,51 @@
                     <canvas id="myChart"></canvas>
                 </div>
 
-                <div class="filter-container">
-                    <label style="font-weight: bold; font-size: 14px;">Filter Month:</label>
+                <div style="background: var(--summary-bg); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-top: 20px;">
+                    <label style="font-weight: bold; font-size: 13px; display: block; margin-bottom: 10px;">Data Controls:</label>
                     <select id="month-filter" onchange="getTransactions()">
                         <option value="all">Full History</option>
                         <option value="0">January</option><option value="1">February</option><option value="2">March</option>
-                        <option value="3">April</option><option value="4">May</option><option value="5">June</option>
-                        <option value="6">July</option><option value="7">August</option><option value="8">September</option>
-                        <option value="9">October</option><option value="10">November</option><option value="11">December</option>
                     </select>
-                    <div class="btn-row">
-                        <button onclick="exportToCSV()" class="export-btn">📥 Export CSV</button>
-                        <button onclick="resetMonth()" class="reset-btn">🗑️ Reset Month</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="exportToCSV()" style="background:#27ae60; color:white; flex:1; padding:12px; border-radius:6px; cursor:pointer; font-weight:bold;">📥 Export CSV</button>
+                        <button onclick="resetMonth()" style="background:#c0392b; color:white; flex:1; padding:12px; border-radius:6px; cursor:pointer; font-weight:bold;">🗑️ Reset Month</button>
                     </div>
                 </div>
             </div>
 
             <div class="right-panel">
                 <h3 style="margin-top:0;">Search</h3>
-                <input type="text" id="search" placeholder="Search transactions..." onkeyup="filterTransactions()">
+                <input type="text" id="search" placeholder="Search by description..." onkeyup="filterTransactions()">
 
-                <h3>History</h3>
+                <h3>Transaction History</h3>
                 <ul id="list" class="list"></ul>
 
-                <h3>Add New</h3>
+                <h3>Add New Transaction</h3>
                 <form id="transaction-form">
-                    <input type="text" id="desc" placeholder="Description" required />
-                    <input type="number" id="amount" placeholder="Amount (Income +, Expense -)" required />
+                    <input type="text" id="desc" placeholder="What was it for?" required />
+                    <input type="number" id="amount" placeholder="Amount (+ income, - expense)" required />
                     <select id="category">
-                        <option value="Food">Food</option><option value="Rent">Rent</option>
-                        <option value="Salary">Salary</option><option value="Transport">Transport</option>
-                        <option value="Entertainment">Entertainment</option><option value="Other">Other</option>
+                        <option value="Food">Food</option>
+                        <option value="Rent">Rent</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Transport">Transport</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Other">Other</option>
                     </select>
-                    <button class="save-btn">Save Transaction</button>
+                    <button class="save-btn" id="save-btn">Save Transaction</button>
                 </form>
             </div>
-
-        </div> <button onclick="logout()" style="margin-top: 40px; background: none; color: var(--secondary-text); text-decoration: underline;">Logout</button>
+        </div>
     </div>
 
     <script>
         let myChart;
         const balanceEl = document.getElementById('balance');
-        const incomeEl = document.getElementById('income');
-        const expenseEl = document.getElementById('expense');
         const list = document.getElementById('list');
         const form = document.getElementById('transaction-form');
-        const currencySelect = document.getElementById('currency-select');
 
-        // --- THEME LOGIC ---
+        // THEME LOGIC
         function toggleDarkMode() {
             const body = document.body;
             const btn = document.getElementById('theme-btn');
@@ -227,10 +251,9 @@
             }
         }
 
-        // --- DATA FETCHING & UI UPDATE ---
         async function getTransactions() {
             try {
-                const currency = currencySelect.value;
+                const currency = document.getElementById('currency-select').value;
                 document.getElementById('goal-symbol').innerText = currency;
 
                 const res = await fetch('/api/transactions');
@@ -242,92 +265,95 @@
                 }
                 
                 list.innerHTML = '';
-                let income = 0; let expense = 0;
+                let inc = 0, exp = 0;
 
                 transactions.forEach(t => {
                     const item = document.createElement('li');
-                    item.classList.add(t.amount < 0 ? 'minus' : 'plus');
                     const date = new Date(t.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
                     item.innerHTML = `
                         <div>
-                            <span style="font-weight:bold;">${t.text}</span>
-                            <span class="item-category">${t.category || 'Other'}</span>
-                            <small class="item-date" style="display:block; font-size:10px; color:gray;">${date}</small>
+                            <strong style="display:block; font-size:15px;">${t.text}</strong>
+                            <span class="item-category" data-category="${t.category}">${t.category || 'Other'}</span>
+                            <small style="display:block; color:var(--secondary-text); font-size:10px; margin-top:6px;">${date}</small>
                         </div>
                         <div style="text-align:right;">
-                            <span style="display:block; font-weight:bold;">${t.amount < 0 ? '-' : '+'}${currency}${Math.abs(t.amount).toFixed(2)}</span>
-                            <button class="edit-btn" onclick="editItem('${t._id}', '${t.text}', ${t.amount}, '${t.category}')">Edit</button>
-                            <button class="delete-btn" onclick="deleteItem('${t._id}')">X</button>
+                            <span style="font-weight:bold; display:block; font-size:16px;">${t.amount < 0 ? '-' : '+'}${currency}${Math.abs(t.amount).toFixed(2)}</span>
+                            <div style="margin-top:8px;">
+                                <button onclick="editItem('${t._id}', '${t.text}', ${t.amount}, '${t.category}')" style="background:orange; color:white; border:none; padding:3px 8px; border-radius:4px; cursor:pointer; font-size:10px;">Edit</button>
+                                <button onclick="deleteItem('${t._id}')" style="background:#e74c3c; color:white; border:none; padding:3px 8px; border-radius:4px; cursor:pointer; font-size:10px;">X</button>
+                            </div>
                         </div>
                     `;
                     list.appendChild(item);
-                    if (t.amount > 0) income += t.amount; else expense += t.amount;
+                    if (t.amount > 0) inc += t.amount; else exp += t.amount;
                 });
 
-                const totalBalance = income + expense;
-                balanceEl.innerText = `${currency}${totalBalance.toFixed(2)}`;
-                incomeEl.innerText = `${currency}${income.toFixed(2)}`;
-                expenseEl.innerText = `${currency}${Math.abs(expense).toFixed(2)}`;
+                const total = inc + exp;
+                balanceEl.innerText = `${currency}${total.toFixed(2)}`;
+                document.getElementById('income').innerText = `${currency}${inc.toFixed(2)}`;
+                document.getElementById('expense').innerText = `${currency}${Math.abs(exp).toFixed(2)}`;
 
-                updateProgressBar(totalBalance, currency);
-                showChart(income, expense);
+                updateProgressBar(total, currency);
+                showChart(inc, exp);
             } catch (err) { console.error(err); }
         }
 
-        // --- FEATURES: GOAL, EXPORT, RESET ---
-        function updateProgressBar(currentBalance, currency) {
+        function updateProgressBar(current, currSymbol) {
             const goalValue = parseFloat(document.getElementById('goal-value').innerText);
-            const progressBar = document.getElementById('progress-bar');
-            let percentage = Math.min((currentBalance / goalValue) * 100, 100);
-            if (percentage < 0) percentage = 0;
-            progressBar.style.width = percentage + "%";
-            document.getElementById('goal-status').innerText = `${Math.round(percentage)}% reached (${currency}${currentBalance.toFixed(2)} / ${currency}${goalValue})`;
-        }
-
-        async function exportToCSV() {
-            const res = await fetch('/api/transactions');
-            const data = await res.json();
-            let csv = "Date,Text,Category,Amount\n";
-            data.forEach(t => csv += `${new Date(t.createdAt).toLocaleDateString()},"${t.text}",${t.category},${t.amount}\n`);
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a'); a.href = url; a.download = 'report.csv'; a.click();
+            const bar = document.getElementById('progress-bar');
+            let perc = Math.min((current / goalValue) * 100, 100);
+            if (perc < 0) perc = 0;
+            bar.style.width = perc + "%";
+            document.getElementById('goal-status').innerText = `${Math.round(perc)}% reached (${currSymbol}${current.toFixed(2)} / ${currSymbol}${goalValue})`;
         }
 
         async function resetMonth() {
             const month = document.getElementById('month-filter').value;
-            if (month === 'all') return alert("Select a specific month.");
-            if (confirm("Delete all data for this month?")) {
+            if (month === 'all') return alert("Select a month to reset.");
+            if (confirm("Permanently reset this month's data?")) {
                 await fetch(`/api/transactions/reset/${month}`, { method: 'DELETE' });
                 getTransactions();
             }
         }
 
-        function setGoal() {
-            const val = prompt("Enter target goal:");
-            if (val) { document.getElementById('goal-value').innerText = val; getTransactions(); }
+        async function exportToCSV() {
+            const res = await fetch('/api/transactions');
+            const data = await res.json();
+            let csv = "Date,Description,Category,Amount\n";
+            data.forEach(t => csv += `${new Date(t.createdAt).toLocaleDateString()},"${t.text}",${t.category},${t.amount}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'expense_report.csv'; a.click();
         }
 
-        // --- CRUD & SEARCH ---
+        function setGoal() {
+            const val = prompt("Enter new target savings goal:", "500");
+            if (val && !isNaN(val)) {
+                document.getElementById('goal-value').innerText = val;
+                getTransactions();
+            }
+        }
+
         function filterTransactions() {
             const filter = document.getElementById('search').value.toLowerCase();
-            Array.from(list.getElementsByTagName('li')).forEach(item => {
-                const name = item.querySelector('span').textContent.toLowerCase();
-                item.style.display = name.includes(filter) ? 'flex' : 'none';
+            Array.from(list.getElementsByTagName('li')).forEach(li => {
+                const text = li.querySelector('strong').innerText.toLowerCase();
+                li.style.display = text.includes(filter) ? 'flex' : 'none';
             });
         }
 
         async function deleteItem(id, confirmMsg = true) {
-            if (confirmMsg && !confirm('Delete?')) return;
+            if (confirmMsg && !confirm('Delete this transaction?')) return;
             await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
             getTransactions();
         }
 
-        function editItem(id, text, amount, category) {
+        function editItem(id, text, amt, cat) {
             document.getElementById('desc').value = text;
-            document.getElementById('amount').value = amount;
-            document.getElementById('category').value = category;
+            document.getElementById('amount').value = amt;
+            document.getElementById('category').value = cat;
+            document.getElementById('save-btn').innerText = "Update Transaction";
             deleteItem(id, false);
             document.getElementById('desc').focus();
         }
@@ -343,6 +369,7 @@
                     category: document.getElementById('category').value 
                 })
             });
+            document.getElementById('save-btn').innerText = "Save Transaction";
             form.reset(); getTransactions();
         });
 
@@ -350,7 +377,8 @@
             const ctx = document.getElementById('myChart').getContext('2d');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
-                type: 'bar', data: {
+                type: 'bar', 
+                data: {
                     labels: ['Income', 'Expense'],
                     datasets: [{ data: [inc, Math.abs(exp)], backgroundColor: ['#2ecc71', '#e74c3c'] }]
                 },

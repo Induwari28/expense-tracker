@@ -30,5 +30,11 @@ app.use('/api/transactions', require('./routes/transactions')); // FOR THE MONEY
 // 5. Serve the frontend files (HTML/CSS)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 6. Start the Server
-app.listen(5000, () => console.log('🚀 Server is running on http://localhost:5000'));
+// 6. Start the Server (UPDATED FOR PRODUCTION)
+// This looks for a port from Render (process.env.PORT) or uses 5000 at home.
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+    console.log(`🚀 Server is running on port ${PORT}`);
+    // Note: On your laptop, this still works at http://localhost:5000
+});
