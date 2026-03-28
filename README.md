@@ -1,5 +1,9 @@
 #  Expense Tracker
 
+<p align="center">
+  <img src="./assets/dashboard.png" alt="Dashboard Screenshot" width="800">
+</p>
+
 A full-stack Expense Tracker web app built as my first portfolio project.
 
 ##  Features
