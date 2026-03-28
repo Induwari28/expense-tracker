@@ -50,7 +50,6 @@
             border: 1px solid #ccc;
         }
 
-        /* NEW: Reset Button Styling */
         .reset-btn {
             background-color: #c0392b; 
             color: white; 
@@ -61,7 +60,19 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .reset-btn:hover { background-color: #a93226; }
+        
+        /* NEW: Export Button Style */
+        .export-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            font-size: 11px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .export-btn:hover { background-color: #219150; }
     </style>
 </head>
 <body>
@@ -128,9 +139,8 @@
                 <option value="11">December</option>
             </select>
 
-            <button onclick="resetMonth()" class="reset-btn">
-                🗑️ Reset Month
-            </button>
+            <button onclick="exportToCSV()" class="export-btn">📥 Export CSV</button>
+            <button onclick="resetMonth()" class="reset-btn">🗑️ Reset Month</button>
         </div>
 
         <h3>Search</h3>
@@ -226,7 +236,40 @@
             } catch (err) { console.error(err); }
         }
 
-        // --- NEW RESET MONTH FUNCTION ---
+        // --- NEW EXPORT CSV FUNCTION ---
+        async function exportToCSV() {
+            try {
+                const res = await fetch('/api/transactions');
+                let transactions = await res.json();
+                
+                const selectedMonth = document.getElementById('month-filter').value;
+                if (selectedMonth !== 'all') {
+                    transactions = transactions.filter(t => new Date(t.createdAt).getMonth() == selectedMonth);
+                }
+
+                if (transactions.length === 0) {
+                    alert("No data available to export.");
+                    return;
+                }
+
+                let csvContent = "Date,Description,Category,Amount\n";
+                transactions.forEach(t => {
+                    const date = new Date(t.createdAt).toLocaleDateString();
+                    const row = `${date},"${t.text}",${t.category || 'Other'},${t.amount}`;
+                    csvContent += row + "\n";
+                });
+
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `expense_report_${selectedMonth === 'all' ? 'full' : 'month_' + selectedMonth}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (err) { console.error("Export failed:", err); }
+        }
+
         async function resetMonth() {
             const selectedMonth = document.getElementById('month-filter').value;
 
@@ -248,9 +291,7 @@
                             alert("Month has been reset.");
                             getTransactions(); 
                         }
-                    } catch (err) {
-                        console.error("Error resetting month:", err);
-                    }
+                    } catch (err) { console.error("Error resetting month:", err); }
                 }
             }
         }
