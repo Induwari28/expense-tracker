@@ -13,18 +13,16 @@ router.get('/', async (req, res) => {
 });
 
 // --- 2. THE "SAVE" PART (POST) ---
-// UPDATED: Now it accepts 'category' from the frontend
 router.post('/', async (req, res) => {
     try {
-        // --- SPY LINE ---
-        console.log("Incoming Data:", req.body); 
+        console.log("Incoming Data:", req.body); // Spy Line
 
         const { text, amount, category } = req.body;
 
         const newTransaction = new Transaction({
             text,
             amount,
-            category: category || 'Other' // This ensures 'Other' is only a backup
+            category: category || 'Other' 
         });
 
         await newTransaction.save();
@@ -35,7 +33,35 @@ router.post('/', async (req, res) => {
     }
 });
 
-// --- 3. THE "DELETE" PART (With Spy Logs) ---
+// --- 3. THE "RESET MONTH" PART (DELETE MANY) ---
+// @route   DELETE api/transactions/reset/:month
+router.delete('/reset/:month', async (req, res) => {
+    try {
+        const month = parseInt(req.params.month);
+        const year = new Date().getFullYear();
+
+        console.log(`🧹 Attempting to reset month: ${month} of year ${year}`);
+
+        // Calculate the first and last day of the selected month
+        const startOfMonth = new Date(year, month, 1);
+        const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
+
+        const result = await Transaction.deleteMany({
+            createdAt: {
+                $gte: startOfMonth,
+                $lte: endOfMonth
+            }
+        });
+
+        console.log(`✅ Success: Removed ${result.deletedCount} items.`);
+        res.json({ msg: 'Month reset successfully', count: result.deletedCount });
+    } catch (err) {
+        console.error("Reset Error:", err.message);
+        res.status(500).send('Server Error');
+    }
+});
+
+// --- 4. THE "DELETE SINGLE" PART (DELETE ONE) ---
 router.delete('/:id', async (req, res) => {
     try {
         console.log("Attempting to delete ID:", req.params.id); // Spy Log
@@ -56,4 +82,5 @@ router.delete('/:id', async (req, res) => {
         res.status(500).send('Server Error');
     }
 });
+
 module.exports = router;
