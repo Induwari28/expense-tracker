@@ -7,81 +7,100 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .item-category { background: #eee; border-radius: 10px; padding: 2px 8px; font-size: 10px; text-transform: uppercase; margin-left: 10px; font-weight: bold; }
-        .item-date { display: block; color: #888; font-size: 11px; margin-top: 5px; }
-        select { width: 100%; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ddd; }
-        #search { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        /* 1. CSS VARIABLES FOR THEME SWITCHING */
+        :root {
+            --bg-color: #f4f7f6;
+            --container-bg: #ffffff;
+            --text-color: #333;
+            --secondary-text: #777;
+            --border-color: #ddd;
+            --summary-bg: #f9f9f9;
+            --item-bg: #eee;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --container-bg: #16213e;
+            --text-color: #ffffff;
+            --secondary-text: #bdc3c7;
+            --border-color: #0f3460;
+            --summary-bg: #1f2a44;
+            --item-bg: #2d3436;
+        }
+
+        /* 2. APPLYING VARIABLES */
+        body { 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            transition: background-color 0.3s, color 0.3s; 
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            background-color: var(--container-bg);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+        }
+
+        .filter-container, .goal-container, .chart-container {
+            background-color: var(--container-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-color);
+        }
+
+        .balance-summary {
+            background-color: var(--summary-bg) !important;
+        }
+
+        .summary-box h4 { color: var(--secondary-text); }
+        .item-category { background: var(--item-bg); color: var(--text-color); }
+        .item-date { color: var(--secondary-text); }
+
+        input, select { 
+            background: var(--container-bg); 
+            color: var(--text-color); 
+            border: 1px solid var(--border-color); 
+        }
+
+        /* Existing Button Styles */
+        .item-category { border-radius: 10px; padding: 2px 8px; font-size: 10px; text-transform: uppercase; margin-left: 10px; font-weight: bold; }
         .delete-btn { cursor: pointer; background-color: #e74c3c; border: 0; color: #fff; padding: 2px 8px; border-radius: 3px; margin-left: 5px; }
         .edit-btn { cursor: pointer; background-color: orange; border: 0; color: #fff; padding: 2px 8px; border-radius: 3px; }
-        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 30px; background: #fff; padding: 10px; border-radius: 8px; }
-        .balance-summary { display: flex; justify-content: space-around; margin-bottom: 20px; padding: 10px; background: #f9f9f9; border-radius: 8px; }
-        .summary-box h4 { margin: 0; font-size: 12px; color: #777; }
+        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 30px; padding: 10px; border-radius: 8px; }
+        .balance-summary { display: flex; justify-content: space-around; margin-bottom: 20px; padding: 10px; border-radius: 8px; }
         .summary-box p { margin: 5px 0 0; font-size: 18px; font-weight: bold; }
         .plus-text { color: #2ecc71; }
         .minus-text { color: #e74c3c; }
         
-        .filter-container {
-            background: #fff;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #eee;
-            margin-bottom: 20px;
-        }
-
-        .goal-btn {
-            padding: 2px 8px;
-            font-size: 12px;
-            background: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .currency-container {
-            text-align: right;
-            margin-bottom: 10px;
-        }
-        #currency-select {
-            width: auto;
-            padding: 5px;
-            margin: 0;
-            font-size: 12px;
-            border: 1px solid #ccc;
-        }
-
-        .reset-btn {
-            background-color: #c0392b; 
-            color: white; 
-            border: none;
-            padding: 8px 12px; 
-            font-size: 11px; 
-            border-radius: 5px; 
-            cursor: pointer;
-            font-weight: bold;
-        }
+        .goal-btn { padding: 2px 8px; font-size: 12px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .reset-btn { background-color: #c0392b; color: white; border: none; padding: 8px 12px; font-size: 11px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .export-btn { background-color: #27ae60; color: white; border: none; padding: 8px 12px; font-size: 11px; border-radius: 5px; cursor: pointer; font-weight: bold; }
         
-        /* NEW: Export Button Style */
-        .export-btn {
-            background-color: #27ae60;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            font-size: 11px;
-            border-radius: 5px;
+        /* Theme Toggle Button Style */
+        #theme-btn {
+            background: var(--summary-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
             cursor: pointer;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
             font-weight: bold;
         }
-        .export-btn:hover { background-color: #219150; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Expense Tracker</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>Expense Tracker</h1>
+            <button onclick="toggleDarkMode()" id="theme-btn">🌙 Dark Mode</button>
+        </div>
 
-        <div class="currency-container">
+        <div class="currency-container" style="text-align: right; margin-bottom: 10px;">
             <label style="font-size: 12px; font-weight: bold;">Currency: </label>
-            <select id="currency-select" onchange="getTransactions()">
+            <select id="currency-select" onchange="getTransactions()" style="width: auto; padding: 5px;">
                 <option value="$">$ (USD)</option>
                 <option value="£">£ (GBP)</option>
                 <option value="€">€ (EUR)</option>
@@ -94,7 +113,7 @@
             <h1 id="balance">$0.00</h1>
         </div>
 
-        <div class="goal-container" style="background: #fff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd;">
+        <div class="goal-container" style="padding: 15px; border-radius: 10px; margin-bottom: 20px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <h4 style="margin: 0;">Savings Goal: <span id="goal-symbol">$</span><span id="goal-value">500</span></h4>
                 <button onclick="setGoal()" class="goal-btn">Set Goal</button>
@@ -103,7 +122,7 @@
             <div class="progress-bg" style="background: #eee; height: 20px; border-radius: 10px; margin-top: 10px; overflow: hidden;">
                 <div id="progress-bar" style="background: #2ecc71; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
             </div>
-            <p id="goal-status" style="font-size: 12px; margin-top: 5px; color: #777;">0% of your goal reached</p>
+            <p id="goal-status" style="font-size: 12px; margin-top: 5px;">0% of your goal reached</p>
         </div>
         
         <div class="balance-summary">
@@ -121,7 +140,7 @@
             <canvas id="myChart"></canvas>
         </div>
 
-        <div class="filter-container" style="display: flex; gap: 10px; align-items: center;">
+        <div class="filter-container" style="display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 8px;">
             <label style="font-weight: bold;">View Month:</label>
             <select id="month-filter" onchange="getTransactions()" style="width: auto; margin-bottom: 0; padding: 5px;">
                 <option value="all">Full History</option>
@@ -167,7 +186,7 @@
             <button class="btn">Save Transaction</button>
         </form>
 
-        <button onclick="logout()" style="margin-top: 30px; background-color: #bbbbbb; border: none; padding: 5px 10px; cursor: pointer;">Logout</button>
+        <button onclick="logout()" style="margin-top: 30px; background-color: #bbbbbb; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Logout</button>
     </div>
 
     <script>
@@ -183,6 +202,21 @@
         const currencySelect = document.getElementById('currency-select');
         const goalSymbol = document.getElementById('goal-symbol');
 
+        // --- DARK MODE LOGIC ---
+        function toggleDarkMode() {
+            const body = document.body;
+            const btn = document.getElementById('theme-btn');
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                btn.innerText = "🌙 Dark Mode";
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                btn.innerText = "☀️ Light Mode";
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
         async function getTransactions() {
             try {
                 const currency = currencySelect.value;
@@ -193,10 +227,7 @@
                 
                 const selectedMonth = document.getElementById('month-filter').value;
                 if (selectedMonth !== 'all') {
-                    transactions = transactions.filter(t => {
-                        const transactionDate = new Date(t.createdAt);
-                        return transactionDate.getMonth() == selectedMonth;
-                    });
+                    transactions = transactions.filter(t => new Date(t.createdAt).getMonth() == selectedMonth);
                 }
                 
                 list.innerHTML = '';
@@ -210,7 +241,7 @@
 
                     item.innerHTML = `
                         <div>
-                            <span class="item-name">${t.text}</span>
+                            <span class="item-name" style="font-weight:bold;">${t.text}</span>
                             <span class="item-category" data-category="${t.category}">${t.category || 'Other'}</span>
                             <small class="item-date">${date}</small>
                         </div>
@@ -236,99 +267,60 @@
             } catch (err) { console.error(err); }
         }
 
-        // --- NEW EXPORT CSV FUNCTION ---
         async function exportToCSV() {
             try {
                 const res = await fetch('/api/transactions');
                 let transactions = await res.json();
-                
                 const selectedMonth = document.getElementById('month-filter').value;
                 if (selectedMonth !== 'all') {
                     transactions = transactions.filter(t => new Date(t.createdAt).getMonth() == selectedMonth);
                 }
-
-                if (transactions.length === 0) {
-                    alert("No data available to export.");
-                    return;
-                }
+                if (transactions.length === 0) { alert("No data to export."); return; }
 
                 let csvContent = "Date,Description,Category,Amount\n";
                 transactions.forEach(t => {
-                    const date = new Date(t.createdAt).toLocaleDateString();
-                    const row = `${date},"${t.text}",${t.category || 'Other'},${t.amount}`;
-                    csvContent += row + "\n";
+                    csvContent += `${new Date(t.createdAt).toLocaleDateString()},"${t.text}",${t.category},${t.amount}\n`;
                 });
 
                 const blob = new Blob([csvContent], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `expense_report_${selectedMonth === 'all' ? 'full' : 'month_' + selectedMonth}.csv`;
-                document.body.appendChild(a);
+                a.download = `report_${selectedMonth}.csv`;
                 a.click();
-                document.body.removeChild(a);
-            } catch (err) { console.error("Export failed:", err); }
+            } catch (err) { console.error(err); }
         }
 
         async function resetMonth() {
             const selectedMonth = document.getElementById('month-filter').value;
-
-            if (selectedMonth === 'all') {
-                alert("Please select a specific month to reset.");
-                return;
-            }
-
-            const confirmFirst = confirm("Are you sure you want to delete ALL transactions for this month?");
-            if (confirmFirst) {
-                const confirmSecond = confirm("This CANNOT be undone. Proceed?");
-                if (confirmSecond) {
-                    try {
-                        const res = await fetch(`/api/transactions/reset/${selectedMonth}`, {
-                            method: 'DELETE'
-                        });
-
-                        if (res.ok) {
-                            alert("Month has been reset.");
-                            getTransactions(); 
-                        }
-                    } catch (err) { console.error("Error resetting month:", err); }
-                }
+            if (selectedMonth === 'all') { alert("Select a month first."); return; }
+            if (confirm("Delete ALL transactions for this month?")) {
+                await fetch(`/api/transactions/reset/${selectedMonth}`, { method: 'DELETE' });
+                getTransactions();
             }
         }
 
         function setGoal() {
-            const newGoal = prompt("Enter your savings goal amount:", "500");
-            if (newGoal && !isNaN(newGoal)) {
-                document.getElementById('goal-value').innerText = newGoal;
-                getTransactions();
-            }
+            const newGoal = prompt("New goal amount:", "500");
+            if (newGoal) { document.getElementById('goal-value').innerText = newGoal; getTransactions(); }
         }
 
         function updateProgressBar(currentBalance, currency) {
             const goalValue = parseFloat(document.getElementById('goal-value').innerText);
             const progressBar = document.getElementById('progress-bar');
-            const goalStatus = document.getElementById('goal-status');
-
-            let percentage = (currentBalance / goalValue) * 100;
+            let percentage = Math.min((currentBalance / goalValue) * 100, 100);
             if (percentage < 0) percentage = 0;
-            if (percentage > 100) percentage = 100;
-
             progressBar.style.width = percentage + "%";
-            goalStatus.innerText = `${Math.round(percentage)}% reached (${currency}${currentBalance.toFixed(2)} / ${currency}${goalValue})`;
-            
-            progressBar.style.backgroundColor = percentage >= 100 ? "#27ae60" : "#2ecc71";
+            document.getElementById('goal-status').innerText = `${Math.round(percentage)}% reached (${currency}${currentBalance.toFixed(2)} / ${currency}${goalValue})`;
         }
 
         function editItem(id, text, amount, category) {
-            descInp.value = text;
-            amountInp.value = amount;
-            categoryInp.value = category || 'Other';
-            deleteItem(id, false); 
-            descInp.focus();
+            descInp.value = text; amountInp.value = amount; categoryInp.value = category;
+            deleteItem(id, false); descInp.focus();
         }
 
         async function deleteItem(id, confirmMsg = true) {
-            if (confirmMsg && !confirm('Delete this item?')) return;
+            if (confirmMsg && !confirm('Delete?')) return;
             await fetch(`/api/transactions/${id}`, { method: 'DELETE' });
             getTransactions();
         }
@@ -338,21 +330,14 @@
             await fetch('/api/transactions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    text: descInp.value, 
-                    amount: Number(amountInp.value),
-                    category: categoryInp.value 
-                })
+                body: JSON.stringify({ text: descInp.value, amount: Number(amountInp.value), category: categoryInp.value })
             });
-            descInp.value = ''; 
-            amountInp.value = '';
-            getTransactions();
+            descInp.value = ''; amountInp.value = ''; getTransactions();
         });
 
         function showChart(inc, exp) {
             const ctx = document.getElementById('myChart').getContext('2d');
-            if (myChart) { myChart.destroy(); }
-
+            if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
                 type: 'bar', 
                 data: {
@@ -363,10 +348,7 @@
                         backgroundColor: ['#2ecc71', '#e74c3c']
                     }]
                 },
-                options: { 
-                    responsive: true,
-                    maintainAspectRatio: false 
-                }
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
@@ -379,7 +361,16 @@
         }
 
         function logout() { window.location.href = 'login.html'; }
-        getTransactions();
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-btn').innerText = "☀️ Light Mode";
+            }
+            getTransactions();
+        };
     </script>
 </body>
 </html>
