@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* 1. CSS VARIABLES FOR THEME SWITCHING */
+        /* 1. CSS VARIABLES & THEMES */
         :root {
             --bg-color: #f4f7f6;
             --container-bg: #ffffff;
@@ -28,67 +28,89 @@
             --item-bg: #2d3436;
         }
 
-        /* 2. APPLYING VARIABLES */
+        /* 2. BASE STYLES */
         body { 
             background-color: var(--bg-color); 
             color: var(--text-color); 
-            transition: background-color 0.3s, color 0.3s; 
-            font-family: Arial, sans-serif;
+            transition: 0.3s; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
         }
 
         .container {
+            max-width: 600px; /* Default for mobile */
+            margin: 0 auto;
             background-color: var(--container-bg);
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            transition: background-color 0.3s;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: max-width 0.4s ease;
         }
 
-        .filter-container, .goal-container, .chart-container {
-            background-color: var(--container-bg) !important;
-            border: 1px solid var(--border-color) !important;
-            color: var(--text-color);
+        h1 { margin: 0; font-size: 24px; }
+        h3 { margin-top: 25px; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
+
+        /* 3. RESPONSIVE GRID SYSTEM */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
         }
 
-        .balance-summary {
-            background-color: var(--summary-bg) !important;
+        /* 4. LAPTOP VIEW (HORIZONTAL) */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 1100px; 
+            }
+            .dashboard-grid {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+            .left-panel { flex: 1.4; }
+            .right-panel { 
+                flex: 1; 
+                position: sticky; 
+                top: 20px;
+                background: var(--summary-bg);
+                padding: 20px;
+                border-radius: 10px;
+            }
         }
 
-        .summary-box h4 { color: var(--secondary-text); }
-        .item-category { background: var(--item-bg); color: var(--text-color); }
-        .item-date { color: var(--secondary-text); }
-
-        input, select { 
-            background: var(--container-bg); 
-            color: var(--text-color); 
-            border: 1px solid var(--border-color); 
-        }
-
-        /* Existing Button Styles */
-        .item-category { border-radius: 10px; padding: 2px 8px; font-size: 10px; text-transform: uppercase; margin-left: 10px; font-weight: bold; }
-        .delete-btn { cursor: pointer; background-color: #e74c3c; border: 0; color: #fff; padding: 2px 8px; border-radius: 3px; margin-left: 5px; }
-        .edit-btn { cursor: pointer; background-color: orange; border: 0; color: #fff; padding: 2px 8px; border-radius: 3px; }
-        .chart-container { position: relative; height: 250px; width: 100%; margin-bottom: 30px; padding: 10px; border-radius: 8px; }
-        .balance-summary { display: flex; justify-content: space-around; margin-bottom: 20px; padding: 10px; border-radius: 8px; }
-        .summary-box p { margin: 5px 0 0; font-size: 18px; font-weight: bold; }
+        /* 5. UI COMPONENTS */
+        .balance-summary { display: flex; justify-content: space-around; margin: 20px 0; padding: 15px; border-radius: 8px; background: var(--summary-bg); }
+        .summary-box p { font-size: 20px; font-weight: bold; margin: 5px 0; }
         .plus-text { color: #2ecc71; }
         .minus-text { color: #e74c3c; }
-        
-        .goal-btn { padding: 2px 8px; font-size: 12px; background: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; }
-        .reset-btn { background-color: #c0392b; color: white; border: none; padding: 8px 12px; font-size: 11px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .export-btn { background-color: #27ae60; color: white; border: none; padding: 8px 12px; font-size: 11px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        
-        /* Theme Toggle Button Style */
-        #theme-btn {
-            background: var(--summary-bg);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            padding: 5px 10px;
-            font-size: 12px;
-            border-radius: 4px;
-            font-weight: bold;
+
+        .chart-container { height: 300px; margin-bottom: 20px; }
+
+        .goal-container { border: 1px solid var(--border-color); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .progress-bg { background: #e0e0e0; height: 12px; border-radius: 6px; overflow: hidden; margin: 10px 0; }
+        #progress-bar { background: #2ecc71; height: 100%; width: 0%; transition: width 0.5s; }
+
+        .list { list-style: none; padding: 0; }
+        .list li { 
+            background: var(--container-bg); 
+            border: 1px solid var(--border-color); 
+            display: flex; justify-content: space-between; 
+            padding: 12px; margin-bottom: 10px; border-radius: 6px; 
         }
+        .item-category { font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: var(--item-bg); }
+
+        input, select { width: 100%; padding: 10px; margin: 5px 0 15px; border-radius: 5px; border: 1px solid var(--border-color); background: var(--container-bg); color: var(--text-color); box-sizing: border-box; }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 8px; margin-top: 10px; }
+        button { cursor: pointer; border-radius: 4px; font-weight: bold; transition: 0.2s; border: none; }
+        .goal-btn { background: #3498db; color: white; padding: 5px 10px; }
+        .export-btn { background: #27ae60; color: white; padding: 8px 12px; flex: 1; }
+        .reset-btn { background: #c0392b; color: white; padding: 8px 12px; flex: 1; }
+        #theme-btn { background: var(--item-bg); color: var(--text-color); border: 1px solid var(--border-color); padding: 5px 10px; }
+        .edit-btn { background: orange; color: white; padding: 2px 6px; margin-right: 5px; }
+        .delete-btn { background: #e74c3c; color: white; padding: 2px 6px; }
+        .save-btn { background: #2980b9; color: white; padding: 12px; width: 100%; font-size: 16px; }
     </style>
 </head>
 <body>
@@ -98,9 +120,9 @@
             <button onclick="toggleDarkMode()" id="theme-btn">🌙 Dark Mode</button>
         </div>
 
-        <div class="currency-container" style="text-align: right; margin-bottom: 10px;">
+        <div style="text-align: right; margin-bottom: 15px;">
             <label style="font-size: 12px; font-weight: bold;">Currency: </label>
-            <select id="currency-select" onchange="getTransactions()" style="width: auto; padding: 5px;">
+            <select id="currency-select" onchange="getTransactions()" style="width: auto; margin: 0;">
                 <option value="$">$ (USD)</option>
                 <option value="£">£ (GBP)</option>
                 <option value="€">€ (EUR)</option>
@@ -108,85 +130,77 @@
             </select>
         </div>
 
-        <div class="balance-container">
-            <h3>Your Balance</h3>
-            <h1 id="balance">$0.00</h1>
-        </div>
-
-        <div class="goal-container" style="padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin: 0;">Savings Goal: <span id="goal-symbol">$</span><span id="goal-value">500</span></h4>
-                <button onclick="setGoal()" class="goal-btn">Set Goal</button>
-            </div>
+        <div class="dashboard-grid">
             
-            <div class="progress-bg" style="background: #eee; height: 20px; border-radius: 10px; margin-top: 10px; overflow: hidden;">
-                <div id="progress-bar" style="background: #2ecc71; height: 100%; width: 0%; transition: width 0.5s ease;"></div>
+            <div class="left-panel">
+                <div class="balance-container" style="text-align: center; margin-bottom: 25px;">
+                    <h3 style="border:none;">Your Balance</h3>
+                    <h1 id="balance" style="font-size: 42px;">$0.00</h1>
+                </div>
+
+                <div class="goal-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0;">Savings Goal: <span id="goal-symbol">$</span><span id="goal-value">500</span></h4>
+                        <button onclick="setGoal()" class="goal-btn">Set Goal</button>
+                    </div>
+                    <div class="progress-bg">
+                        <div id="progress-bar"></div>
+                    </div>
+                    <p id="goal-status" style="font-size: 12px; color: var(--secondary-text); margin: 0;">0% reached</p>
+                </div>
+
+                <div class="balance-summary">
+                    <div class="summary-box" style="text-align: center;">
+                        <h4 style="margin:0; font-size:12px;">INCOME</h4>
+                        <p id="income" class="plus-text">$0.00</p>
+                    </div>
+                    <div class="summary-box" style="text-align: center;">
+                        <h4 style="margin:0; font-size:12px;">EXPENSE</h4>
+                        <p id="expense" class="minus-text">$0.00</p>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="myChart"></canvas>
+                </div>
+
+                <div class="filter-container">
+                    <label style="font-weight: bold; font-size: 14px;">Filter Month:</label>
+                    <select id="month-filter" onchange="getTransactions()">
+                        <option value="all">Full History</option>
+                        <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                        <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                        <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                        <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                    </select>
+                    <div class="btn-row">
+                        <button onclick="exportToCSV()" class="export-btn">📥 Export CSV</button>
+                        <button onclick="resetMonth()" class="reset-btn">🗑️ Reset Month</button>
+                    </div>
+                </div>
             </div>
-            <p id="goal-status" style="font-size: 12px; margin-top: 5px;">0% of your goal reached</p>
-        </div>
-        
-        <div class="balance-summary">
-            <div class="summary-box">
-                <h4>INCOME</h4>
-                <p id="income" class="plus-text">$0.00</p>
+
+            <div class="right-panel">
+                <h3 style="margin-top:0;">Search</h3>
+                <input type="text" id="search" placeholder="Search transactions..." onkeyup="filterTransactions()">
+
+                <h3>History</h3>
+                <ul id="list" class="list"></ul>
+
+                <h3>Add New</h3>
+                <form id="transaction-form">
+                    <input type="text" id="desc" placeholder="Description" required />
+                    <input type="number" id="amount" placeholder="Amount (Income +, Expense -)" required />
+                    <select id="category">
+                        <option value="Food">Food</option><option value="Rent">Rent</option>
+                        <option value="Salary">Salary</option><option value="Transport">Transport</option>
+                        <option value="Entertainment">Entertainment</option><option value="Other">Other</option>
+                    </select>
+                    <button class="save-btn">Save Transaction</button>
+                </form>
             </div>
-            <div class="summary-box">
-                <h4>EXPENSE</h4>
-                <p id="expense" class="minus-text">$0.00</p>
-            </div>
-        </div>
 
-        <div class="chart-container">
-            <canvas id="myChart"></canvas>
-        </div>
-
-        <div class="filter-container" style="display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 8px;">
-            <label style="font-weight: bold;">View Month:</label>
-            <select id="month-filter" onchange="getTransactions()" style="width: auto; margin-bottom: 0; padding: 5px;">
-                <option value="all">Full History</option>
-                <option value="0">January</option>
-                <option value="1">February</option>
-                <option value="2">March</option>
-                <option value="3">April</option>
-                <option value="4">May</option>
-                <option value="5">June</option>
-                <option value="6">July</option>
-                <option value="7">August</option>
-                <option value="8">September</option>
-                <option value="9">October</option>
-                <option value="10">November</option>
-                <option value="11">December</option>
-            </select>
-
-            <button onclick="exportToCSV()" class="export-btn">📥 Export CSV</button>
-            <button onclick="resetMonth()" class="reset-btn">🗑️ Reset Month</button>
-        </div>
-
-        <h3>Search</h3>
-        <input type="text" id="search" placeholder="Search by name..." onkeyup="filterTransactions()">
-
-        <h3>History</h3>
-        <ul id="list" class="list"></ul>
-
-        <h3>Add New Transaction</h3>
-        <form id="transaction-form">
-            <input type="text" id="desc" placeholder="Description" required />
-            <input type="number" id="amount" placeholder="Amount (Income +, Expense -)" required />
-            
-            <label for="category">Category</label>
-            <select id="category">
-                <option value="Food">Food</option>
-                <option value="Rent">Rent</option>
-                <option value="Salary">Salary</option>
-                <option value="Transport">Transport</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Other">Other</option>
-            </select>
-
-            <button class="btn">Save Transaction</button>
-        </form>
-
-        <button onclick="logout()" style="margin-top: 30px; background-color: #bbbbbb; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Logout</button>
+        </div> <button onclick="logout()" style="margin-top: 40px; background: none; color: var(--secondary-text); text-decoration: underline;">Logout</button>
     </div>
 
     <script>
@@ -196,13 +210,9 @@
         const expenseEl = document.getElementById('expense');
         const list = document.getElementById('list');
         const form = document.getElementById('transaction-form');
-        const descInp = document.getElementById('desc');
-        const amountInp = document.getElementById('amount');
-        const categoryInp = document.getElementById('category');
         const currencySelect = document.getElementById('currency-select');
-        const goalSymbol = document.getElementById('goal-symbol');
 
-        // --- DARK MODE LOGIC ---
+        // --- THEME LOGIC ---
         function toggleDarkMode() {
             const body = document.body;
             const btn = document.getElementById('theme-btn');
@@ -217,10 +227,11 @@
             }
         }
 
+        // --- DATA FETCHING & UI UPDATE ---
         async function getTransactions() {
             try {
                 const currency = currencySelect.value;
-                goalSymbol.innerText = currency;
+                document.getElementById('goal-symbol').innerText = currency;
 
                 const res = await fetch('/api/transactions');
                 let transactions = await res.json();
@@ -231,8 +242,7 @@
                 }
                 
                 list.innerHTML = '';
-                let income = 0;
-                let expense = 0;
+                let income = 0; let expense = 0;
 
                 transactions.forEach(t => {
                     const item = document.createElement('li');
@@ -241,20 +251,18 @@
 
                     item.innerHTML = `
                         <div>
-                            <span class="item-name" style="font-weight:bold;">${t.text}</span>
-                            <span class="item-category" data-category="${t.category}">${t.category || 'Other'}</span>
-                            <small class="item-date">${date}</small>
+                            <span style="font-weight:bold;">${t.text}</span>
+                            <span class="item-category">${t.category || 'Other'}</span>
+                            <small class="item-date" style="display:block; font-size:10px; color:gray;">${date}</small>
                         </div>
-                        <div>
-                            <span>${t.amount < 0 ? '-' : '+'}${currency}${Math.abs(t.amount).toFixed(2)}</span>
+                        <div style="text-align:right;">
+                            <span style="display:block; font-weight:bold;">${t.amount < 0 ? '-' : '+'}${currency}${Math.abs(t.amount).toFixed(2)}</span>
                             <button class="edit-btn" onclick="editItem('${t._id}', '${t.text}', ${t.amount}, '${t.category}')">Edit</button>
                             <button class="delete-btn" onclick="deleteItem('${t._id}')">X</button>
                         </div>
                     `;
                     list.appendChild(item);
-
-                    if (t.amount > 0) income += t.amount;
-                    else expense += t.amount;
+                    if (t.amount > 0) income += t.amount; else expense += t.amount;
                 });
 
                 const totalBalance = income + expense;
@@ -267,44 +275,7 @@
             } catch (err) { console.error(err); }
         }
 
-        async function exportToCSV() {
-            try {
-                const res = await fetch('/api/transactions');
-                let transactions = await res.json();
-                const selectedMonth = document.getElementById('month-filter').value;
-                if (selectedMonth !== 'all') {
-                    transactions = transactions.filter(t => new Date(t.createdAt).getMonth() == selectedMonth);
-                }
-                if (transactions.length === 0) { alert("No data to export."); return; }
-
-                let csvContent = "Date,Description,Category,Amount\n";
-                transactions.forEach(t => {
-                    csvContent += `${new Date(t.createdAt).toLocaleDateString()},"${t.text}",${t.category},${t.amount}\n`;
-                });
-
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `report_${selectedMonth}.csv`;
-                a.click();
-            } catch (err) { console.error(err); }
-        }
-
-        async function resetMonth() {
-            const selectedMonth = document.getElementById('month-filter').value;
-            if (selectedMonth === 'all') { alert("Select a month first."); return; }
-            if (confirm("Delete ALL transactions for this month?")) {
-                await fetch(`/api/transactions/reset/${selectedMonth}`, { method: 'DELETE' });
-                getTransactions();
-            }
-        }
-
-        function setGoal() {
-            const newGoal = prompt("New goal amount:", "500");
-            if (newGoal) { document.getElementById('goal-value').innerText = newGoal; getTransactions(); }
-        }
-
+        // --- FEATURES: GOAL, EXPORT, RESET ---
         function updateProgressBar(currentBalance, currency) {
             const goalValue = parseFloat(document.getElementById('goal-value').innerText);
             const progressBar = document.getElementById('progress-bar');
@@ -314,9 +285,37 @@
             document.getElementById('goal-status').innerText = `${Math.round(percentage)}% reached (${currency}${currentBalance.toFixed(2)} / ${currency}${goalValue})`;
         }
 
-        function editItem(id, text, amount, category) {
-            descInp.value = text; amountInp.value = amount; categoryInp.value = category;
-            deleteItem(id, false); descInp.focus();
+        async function exportToCSV() {
+            const res = await fetch('/api/transactions');
+            const data = await res.json();
+            let csv = "Date,Text,Category,Amount\n";
+            data.forEach(t => csv += `${new Date(t.createdAt).toLocaleDateString()},"${t.text}",${t.category},${t.amount}\n`);
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = 'report.csv'; a.click();
+        }
+
+        async function resetMonth() {
+            const month = document.getElementById('month-filter').value;
+            if (month === 'all') return alert("Select a specific month.");
+            if (confirm("Delete all data for this month?")) {
+                await fetch(`/api/transactions/reset/${month}`, { method: 'DELETE' });
+                getTransactions();
+            }
+        }
+
+        function setGoal() {
+            const val = prompt("Enter target goal:");
+            if (val) { document.getElementById('goal-value').innerText = val; getTransactions(); }
+        }
+
+        // --- CRUD & SEARCH ---
+        function filterTransactions() {
+            const filter = document.getElementById('search').value.toLowerCase();
+            Array.from(list.getElementsByTagName('li')).forEach(item => {
+                const name = item.querySelector('span').textContent.toLowerCase();
+                item.style.display = name.includes(filter) ? 'flex' : 'none';
+            });
         }
 
         async function deleteItem(id, confirmMsg = true) {
@@ -325,47 +324,44 @@
             getTransactions();
         }
 
+        function editItem(id, text, amount, category) {
+            document.getElementById('desc').value = text;
+            document.getElementById('amount').value = amount;
+            document.getElementById('category').value = category;
+            deleteItem(id, false);
+            document.getElementById('desc').focus();
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             await fetch('/api/transactions', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text: descInp.value, amount: Number(amountInp.value), category: categoryInp.value })
+                body: JSON.stringify({ 
+                    text: document.getElementById('desc').value, 
+                    amount: Number(document.getElementById('amount').value),
+                    category: document.getElementById('category').value 
+                })
             });
-            descInp.value = ''; amountInp.value = ''; getTransactions();
+            form.reset(); getTransactions();
         });
 
         function showChart(inc, exp) {
             const ctx = document.getElementById('myChart').getContext('2d');
             if (myChart) myChart.destroy();
             myChart = new Chart(ctx, {
-                type: 'bar', 
-                data: {
+                type: 'bar', data: {
                     labels: ['Income', 'Expense'],
-                    datasets: [{
-                        label: 'Amount',
-                        data: [inc, Math.abs(exp)],
-                        backgroundColor: ['#2ecc71', '#e74c3c']
-                    }]
+                    datasets: [{ data: [inc, Math.abs(exp)], backgroundColor: ['#2ecc71', '#e74c3c'] }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function filterTransactions() {
-            const filter = document.getElementById('search').value.toLowerCase();
-            Array.from(list.getElementsByTagName('li')).forEach(item => {
-                const name = item.querySelector('.item-name').textContent.toLowerCase();
-                item.style.display = name.includes(filter) ? 'flex' : 'none';
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
             });
         }
 
         function logout() { window.location.href = 'login.html'; }
 
-        // --- INITIALIZATION ---
         window.onload = () => {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
+            if (localStorage.getItem('theme') === 'dark') {
                 document.body.setAttribute('data-theme', 'dark');
                 document.getElementById('theme-btn').innerText = "☀️ Light Mode";
             }
